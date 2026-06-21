@@ -42,6 +42,7 @@ export interface Profile {
   shift_end_time: string;
   monthly_task_target: number;
   monthly_hours_target: number;
+  deleted_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -205,6 +206,8 @@ export interface AppSettings {
   early_logout_grace_min: number;
   low_completion_threshold: number;
   high_quality_threshold: number;
+  payroll_start_date: string;
+  allowed_late_per_month: number;
   updated_at: string;
 }
 

@@ -17,7 +17,8 @@ import { CURRENCIES } from "@/lib/payroll/constants";
 import type { AppSettings } from "@/lib/types";
 
 const FIELDS: { key: keyof AppSettings; label: string; hint: string }[] = [
-  { key: "grace_period_minutes", label: "Late-login grace (min)", hint: "Minutes after shift start before a login counts as late." },
+  { key: "grace_period_minutes", label: "Late-login grace (min)", hint: "Minutes after shift start before a login counts as late (30 = rule #2)." },
+  { key: "allowed_late_per_month", label: "Allowed lates / payroll month", hint: "Free late logins before each extra late becomes a 1-day salary deduction." },
   { key: "early_logout_grace_min", label: "Early-logout grace (min)", hint: "Minutes before shift end allowed without penalty." },
   { key: "max_break_minutes", label: "Daily break allowance (min)", hint: "Total break time before the excessive-break penalty." },
   { key: "standard_work_minutes", label: "Standard work day (min)", hint: "Expected productive minutes per day." },
@@ -30,6 +31,9 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
   const [currency, setCurrency] = useState(settings.base_currency ?? "USD");
+  const [startDate, setStartDate] = useState(
+    settings.payroll_start_date ?? "2026-06-21",
+  );
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(FIELDS.map((f) => [f.key, String(settings[f.key])])),
   );
@@ -37,7 +41,10 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
   const submit = () => {
     setMsg(null);
     startTransition(async () => {
-      const payload: UpdateSettingsInput = { base_currency: currency };
+      const payload: UpdateSettingsInput = {
+        base_currency: currency,
+        payroll_start_date: startDate,
+      };
       for (const f of FIELDS) {
         (payload as Record<string, number | string>)[f.key] = Number(
           values[f.key],
@@ -67,6 +74,20 @@ export function SettingsForm({ settings }: { settings: AppSettings }) {
         </Select>
         <p className="text-xs text-muted-foreground">
           Default currency used when a new agent&apos;s payroll has none set.
+        </p>
+      </div>
+
+      <div className="max-w-xs space-y-1.5">
+        <Label htmlFor="payroll-start">Payroll start date</Label>
+        <Input
+          id="payroll-start"
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">
+          First tracked period starts here (e.g. 2026-06-21 = trial); full
+          calendar months follow from the next month.
         </p>
       </div>
 

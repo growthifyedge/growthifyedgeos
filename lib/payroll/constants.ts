@@ -40,6 +40,7 @@ export const PAYROLL_STATUS_STYLES: Record<PayrollStatus, string> = {
 export const BONUS_CATEGORIES = [
   "performance_bonus",
   "incentive",
+  "perk",
   "overtime",
   "appreciation",
   "festival_bonus",
@@ -58,6 +59,7 @@ export const DEDUCTION_CATEGORIES = [
 export const ADJUSTMENT_CATEGORY_LABELS: Record<string, string> = {
   performance_bonus: "Performance Bonus",
   incentive: "Incentive",
+  perk: "Extra Perk",
   overtime: "Overtime",
   appreciation: "Appreciation Reward",
   festival_bonus: "Festival Bonus",

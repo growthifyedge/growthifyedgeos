@@ -41,10 +41,16 @@ export interface PayrollRun {
   agent_id: string;
   period_month: string; // YYYY-MM-01
 
+  // period window (date-range based)
+  period_start: string | null;
+  period_end: string | null;
+  is_trial: boolean;
+
   // salary snapshot
   base_salary: number;
   currency: string;
   working_days: number;
+  total_working_days: number; // expected working days for the period (prorated)
   daily_rate: number;
 
   // attendance / leave snapshot
@@ -52,10 +58,14 @@ export interface PayrollRun {
   approved_leave_days: number;
   unapproved_absence_days: number;
   late_count: number;
+  allowed_late_count: number;
+  late_to_absent_days: number;
   productive_seconds: number;
 
   // money breakdown
-  leave_deduction: number;
+  leave_deduction: number; // unapproved-absence deduction
+  approved_leave_deduction: number; // approved leave (unpaid)
+  late_to_absent_deduction: number;
   total_bonuses: number;
   total_manual_deductions: number;
   total_deductions: number;

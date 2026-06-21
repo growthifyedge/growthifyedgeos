@@ -1,5 +1,13 @@
 import { format } from "date-fns";
-import { CheckCircle2, Clock, CalendarOff, AlertTriangle, Target, Trophy } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  CalendarOff,
+  CalendarDays,
+  AlertTriangle,
+  Target,
+  Trophy,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -85,7 +93,9 @@ export function PayrollBreakdown({
             <div>
               <CardTitle>{agentName}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {monthLabel(run.period_month)}
+                {run.period_start && run.period_end
+                  ? `${format(new Date(run.period_start), "MMM d")} – ${format(new Date(run.period_end), "MMM d, yyyy")}`
+                  : monthLabel(run.period_month)}
               </p>
               {run.last_generated_at ? (
                 <p className="text-xs text-muted-foreground">
@@ -94,23 +104,44 @@ export function PayrollBreakdown({
                 </p>
               ) : null}
             </div>
-            <PayrollStatusBadge status={run.status} />
+            <div className="flex flex-col items-end gap-1">
+              <PayrollStatusBadge status={run.status} />
+              {run.is_trial ? (
+                <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  Trial period
+                </span>
+              ) : null}
+            </div>
           </CardHeader>
           <CardContent className="space-y-2">
             <Line label="Base salary" value={formatMoney(run.base_salary, cur)} />
             <Line
-              label="Bonuses"
+              label="Bonuses & perks"
               value={`+${formatMoney(run.total_bonuses, cur)}`}
               tone="green"
             />
             <Line
-              label="Manual deductions"
-              value={`−${formatMoney(run.total_manual_deductions, cur)}`}
+              label={`Absent deduction (${run.unapproved_absence_days} day${run.unapproved_absence_days === 1 ? "" : "s"})`}
+              value={`−${formatMoney(run.leave_deduction, cur)}`}
               tone="red"
             />
+            {run.approved_leave_deduction > 0 ? (
+              <Line
+                label={`Approved leave — unpaid (${run.approved_leave_days} day${run.approved_leave_days === 1 ? "" : "s"})`}
+                value={`−${formatMoney(run.approved_leave_deduction, cur)}`}
+                tone="red"
+              />
+            ) : null}
+            {run.late_to_absent_deduction > 0 ? (
+              <Line
+                label={`Late penalty (${run.late_to_absent_days} day${run.late_to_absent_days === 1 ? "" : "s"})`}
+                value={`−${formatMoney(run.late_to_absent_deduction, cur)}`}
+                tone="red"
+              />
+            ) : null}
             <Line
-              label={`Leave deduction (${run.unapproved_absence_days} absent day${run.unapproved_absence_days === 1 ? "" : "s"})`}
-              value={`−${formatMoney(run.leave_deduction, cur)}`}
+              label="Manual deductions"
+              value={`−${formatMoney(run.total_manual_deductions, cur)}`}
               tone="red"
             />
             <Separator />
@@ -156,13 +187,16 @@ export function PayrollBreakdown({
           </p>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3">
+          <Snap icon={CalendarDays} label="Working days (expected)" value={run.total_working_days} />
+          <Snap icon={CheckCircle2} label="Present days" value={run.present_days} />
+          <Snap icon={CalendarOff} label="Approved leave (unpaid)" value={run.approved_leave_days} />
+          <Snap icon={AlertTriangle} label="Unapproved absence" value={run.unapproved_absence_days} />
+          <Snap icon={Clock} label={`Late logins (allowed ${run.allowed_late_count})`} value={run.late_count} />
+          <Snap icon={AlertTriangle} label="Late → absent days" value={run.late_to_absent_days} />
           <Snap icon={CheckCircle2} label="Completed tasks" value={run.completed_tasks} />
           <Snap icon={Target} label="Target achievement" value={`${run.target_pct}%`} />
           <Snap icon={Trophy} label="Net KPI points" value={run.net_kpi_points} />
           <Snap icon={Clock} label="Productive hours" value={formatDuration(run.productive_seconds)} />
-          <Snap icon={CalendarOff} label="Approved leave days" value={run.approved_leave_days} />
-          <Snap icon={AlertTriangle} label="Unapproved absence days" value={run.unapproved_absence_days} />
-          <Snap icon={Clock} label="Late logins (not deducted)" value={run.late_count} />
         </CardContent>
       </Card>
     </div>

@@ -117,8 +117,14 @@ export default async function PayrollReportsPage({
       last_generated: r.last_generated_at,
       net_kpi_points: r.net_kpi_points,
       productive_seconds: r.productive_seconds,
+      total_working_days: r.total_working_days,
+      present_days: r.present_days,
+      approved_leave_days: r.approved_leave_days,
       unapproved_absence_days: r.unapproved_absence_days,
       late_count: r.late_count,
+      allowed_late_count: r.allowed_late_count,
+      late_to_absent_days: r.late_to_absent_days,
+      is_trial: r.is_trial,
     }))
     .sort((a, b) => a.agent.localeCompare(b.agent));
 
@@ -275,6 +281,7 @@ export default async function PayrollReportsPage({
 
       {/* Agent-wise summary */}
       {reportRows.length > 0 ? (
+        <>
         <Card>
           <CardHeader>
             <CardTitle>Agent-wise summary</CardTitle>
@@ -318,6 +325,56 @@ export default async function PayrollReportsPage({
             </Table>
           </CardContent>
         </Card>
+
+        {/* Attendance & late summary (rule #8) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Attendance &amp; late summary</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 sm:p-2">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Agent</TableHead>
+                  <TableHead>Working days</TableHead>
+                  <TableHead>Present</TableHead>
+                  <TableHead>Approved leave</TableHead>
+                  <TableHead>Absent</TableHead>
+                  <TableHead>Late</TableHead>
+                  <TableHead>Allowed late</TableHead>
+                  <TableHead>Late → absent</TableHead>
+                  <TableHead>Period</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reportRows.map((r, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="font-medium">{r.agent}</TableCell>
+                    <TableCell className="text-sm">{r.total_working_days}</TableCell>
+                    <TableCell className="text-sm">{r.present_days}</TableCell>
+                    <TableCell className="text-sm text-amber-600">
+                      {r.approved_leave_days}
+                    </TableCell>
+                    <TableCell className="text-sm text-red-600">
+                      {r.unapproved_absence_days}
+                    </TableCell>
+                    <TableCell className="text-sm">{r.late_count}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {r.allowed_late_count}
+                    </TableCell>
+                    <TableCell className="text-sm text-red-600">
+                      {r.late_to_absent_days}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {r.is_trial ? "Trial" : "Full"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        </>
       ) : null}
     </div>
   );
