@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GrowthifyEdge Operations Center",
+  title: "GrowthifyEdge — WhatsApp Inbox",
   description:
-    "GrowthifyEdge — Digital Marketing Operations. Real-time attendance, tasks, KPIs, penalties & rewards.",
+    "GrowthifyEdge WhatsApp auto-responder — receive customer messages and reply automatically.",
 };
 
 export default function RootLayout({
